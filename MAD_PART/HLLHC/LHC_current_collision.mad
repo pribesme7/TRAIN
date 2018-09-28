@@ -1,0 +1,78 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+system,"ln -fns /afs/cern.ch/eng/lhc/optics/runII/2018 db";
+call, file = "db/lhc_as-built.seq";
+call, file = "db/toolkit/slice.madx";
+call, file = "db/PROTON/opticsfile.22_ctpps2";
+call, file = "octupole.str";
+call,file = "macro.madx";
+call, file = "beamDefinition";
+//////////////////////////////////////
+
+!parallel separation
+on_sep1              :=  0.0 ;
+on_sep2              :=  0.0 ;
+on_sep5              :=  0.0 ;
+on_sep8              :=  0.0 ;
+
+on_ov1 = 0;
+on_ov5 = 0;
+on_ov8 = 0;
+on_ov2 = 0;
+
+
+exec,check_ip(b1); exec,check_ip(b2);
+
+call,file="match_rollangle.madx";
+
+
+
+
+nrj = 6500;
+
+
+on_sol_atlas        :=  0 ;
+on_sol_cms          :=  0 ;
+on_sol_alice        :=  0 ;
+
+on_crab1            :=  0;
+on_crab5            :=  0;
+
+on_lhcb             :=  7000/nrj;
+on_alice            :=  7000/nrj;
+
+on_a2                =  0 ;
+on_a8                =  0 ;
+
+exec,check_ip(b1); exec,check_ip(b2);
+
+
+
+
+stop;
+
+
+
+
+
+
+!on_disp=0;
+!on_oct = 0;
+
+
+!call, file = "params_lhc.ip5";
+
+long_a= 0.53 * sigz/2;
+long_b= 1.40 * sigz/2;
+value,long_a,long_b;
+ho_charge = 1;
+use,sequence=lhcb1; makethin, sequence=lhcb1,
+style=teapot,makedipedge=true ;
+use,sequence=lhcb2; makethin, sequence=lhcb2,
+style=teapot,makedipedge=true ;
+/// AG: extracted common beam beam part to separate file
+exec,check_ip(b1); exec,check_ip(b2);
+
+
+call, file="commonBeamBeamPart.mad";
+
+stop;

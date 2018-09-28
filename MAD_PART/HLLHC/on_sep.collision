@@ -1,0 +1,5 @@
+!parallel separation
+on_sep1              :=  0.0 ;
+on_sep2              :=  0.138 ;
+on_sep5              :=  -0.0 ;
+on_sep8              :=  -0.043 ;

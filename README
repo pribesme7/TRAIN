@@ -1,0 +1,13 @@
+- The TRAIN user manual can be found in "Documentation", together with the document specifying the different optics that will be used in HLLHC. The user manual details the inputs and outputs of the program, as well as how to execute the code.
+  It also specifies the way TRAIN works and details all the subroutines, functions and bash scripts needed to understand and further develop the code. 
+
+- The current version of the fortran code TRAIN is named amtrain.f 
+
+- The different files named LHC_HL_*.madx in the folder MAD_PART refer to the optics described in the document "HLLHC-OperationalScenarios-Update", that can be found in the folder Documentation. 
+
+- The filling schemes available in the folder FillingScheme correspond to the Standard, BCMS and 8b4e filling schemes, that can also be found in the document "HLLHC-OperationalScenarios-Update".
+
+- For a fast execution of the code follow the next steps
+	1. Type "make"
+	2. "./updateMadFiles.sh {opticfile}", opticfile are the file LHC_HL_*.madx. It is just needed to introduce HL_*, for instance HL_collision_64
+	3. "./runTrainForFillingScheme.sh {fillingscheme}{plot|noPlot}" 

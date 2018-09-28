@@ -1,0 +1,30 @@
+INJECTION SCHEME : 8b4e_1972b_1967_1178_1886_224bpi_12inj								
+								
+idx	inj Nbr,	Ring	RF Bucket	Bu Spac (ns)	bu per PS batch	SPS Batch spac	PSbatch nbr	
+1,	1,	ring_1,	1,		25,		12,		0,	1	
+2,	1,	ring_2,	51,		25,		12,		0,	1	
+3,	2,	ring_1,	481,		25,		56,		2175,	4	
+4,	2,	ring_2,	481,		25,		56,		2175,	4	
+5,	3,	ring_1,	4201,		25,		56,		2175,	4	
+6,	3,	ring_2,	4201,		25,		56,		2175,	4	
+7,	4,	ring_1,	8311,		25,		56,		0,	1	
+8,	4,	ring_2,	8311,		25,		56,		0,	1	
+9,	5,	ring_1,	9421,		25,		56,		2175,	4	
+10,	5,	ring_2,	9421,		25,		56,		2175,	4	
+11,	6,	ring_1,	13141,		25,		56,		2175,	4	
+12,	6,	ring_2,	13141,		25,		56,		2175,	4	
+13,	7,	ring_1,	17251,		25,		56,		0,	1	
+14,	7,	ring_2,	17251,		25,		56,		0,	1	
+15,	8,	ring_1,	18361,		25,		56,		2175,	4	
+16,	8,	ring_2,	18361,		25,		56,		2175,	4	
+17,	9,	ring_1,	22081,		25,		56,		2175,	4	
+18,	9,	ring_2,	22081,		25,		56,		2175,	4	
+19,	10,	ring_1,	26191,		25,		56,		0,	1	
+20,	10,	ring_2,	26191,		25,		56,		0,	1	
+21,	11,	ring_1,	27301,		25,		56,		2175,	4	
+22,	11,	ring_2,	27301,		25,		56,		2175,	4	
+23,	12,	ring_1,	31021,		25,		56,		2175,	4	
+24,	12,	ring_2,	31021,		25,		56,		2175,	4	
+Bu Spac : space in ns between bunches in the same PS train								
+SPS Batch Spac : space in ns between 2 first bunches of consecutive PS trains in the SPS								
+								

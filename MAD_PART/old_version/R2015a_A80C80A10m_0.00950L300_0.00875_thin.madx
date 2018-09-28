@@ -1,0 +1,11 @@
+call,file="resdata/init-constants.madx";
+call,file="repdata/2015/V6.503/sequence/lhc2015.seq";
+call,file="resdata/slice.madx";
+
+call,file="repdata/2015/V6.503/strength/opt_inj_colltunes_thin.madx" ;
+call,file="repdata/2015/V6.503/strength/IR1/ir1_800_thin.madx" ;
+call,file="repdata/2015/V6.503/strength/IR5/ir5_800_thin.madx" ;
+call,file="repdata/2015/V6.503/strength/IR8/ir8_3000_875_thin.madx" ;
+call,file="repdata/2015/V6.503/strength/IR2/ir2_10000_951_thin.madx" ;
+call,file="resdata/reset-bump-flags.madx" ;
+call,file="resdata/match-chroma.madx";

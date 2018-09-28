@@ -1,0 +1,17 @@
+      programe prova
+      implicit none
+      integer a(10),b(10), i
+      do i = 1,10
+        a(i) = i
+      enddo
+c      write(*,*) a(6:),'a',a(1:5)
+      do i = 1,10
+        if (i + 5 .lt. 10) then
+          b(i) = a(i+(5-1))
+        else
+          b(i) = a(i - (10-(5-1)))  
+        endif
+      enddo
+      
+      write(*,*) b
+      end

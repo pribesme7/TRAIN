@@ -1,0 +1,5 @@
+! phi
+phi_IR1              :=   0 ;
+phi_IR2		     :=   90 ;
+phi_IR5              :=   45 ;
+phi_IR8 	     :=   0 ;

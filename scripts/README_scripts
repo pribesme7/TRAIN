@@ -1,0 +1,4 @@
+In this folder several python scripts can be found. The codes are not documented and were developed for self-usage.
+The files that contain "analyze" are scripts that do scans in roll angle, transverse separation and parallel crossing angle using TRAIN.
+The files that contain "plot" were developed as fast scripts for plotting the outputs obtained from TRAIN.
+The files containing "ext" were use for analysis with extra elements introduced with the option on_ext, mainly of the crab cavities and the triplets. 

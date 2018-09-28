@@ -1,0 +1,497 @@
+#
+Option,  warn,info,echo;
+//System,
+//"ln -fns /afs/cern.ch/group/si/slap/share/mad-X/test_suite/foot/V1.04 ldb";
+//system,"ln -fns /afs/cern.ch/eng/lhc/optics/V6.4 offdb";
+Option, -echo,-info,warn;
+//SU=1.0;
+//call, file = "offdb/V6.4.seq";
+//call, file = "ldb/V6.4.seq";
+//call, file = "V6.4.seq";
+call, file = "V6.5.thin.seq";
+//call,file="offdb/toolkit/slice.madx";
+//call,file="ldb/slice.madx";
+//call,file="slice_old.madx";
+//call,file="slice.madx";
+Option, echo,info,warn;
+
+//+++++++++++++++++++++++++ Step 1 +++++++++++++++++++++++
+// 	define beam constants
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+call, file = "beamDefinition";
+
+//--- split5, 4d
+long_a= 0.53 * sigz/2;
+long_b= 1.40 * sigz/2;
+value,long_a,long_b;
+
+ho_charge = 1.0;
+
+//+++++++++++++++++++++++++ Step 2 +++++++++++++++++++++++
+// 	slice, flatten sequence, and cycle start to ip3
+//	load collision configuration
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+use,sequence=lhcb1;
+
+option,-warn,-echo,-info;
+//call,file="V6.5.thin.coll_special.4.0TeV_0.6m3m0.6m3m_back.str";
+//call,file="V6.5.thin.coll_special.4.0TeV_0.6m3m0.6m3m.str";
+//call,file="VV6.5.thin.coll_special.4.0TeV_0.6m3m0.6m3m.str";
+call,file="V6.5.thin.coll.str";
+//call,file="V6.5.thin.coll_special.4.0TeV_11m10m11m10m.str";
+//call,file="octupole.str";
+option,warn,echo,info;
+ abas :=  2.0*clight/(7e12)*on_atlas ;
+ abcs :=  4.0*clight/(7e12)*on_cms ;
+ 
+//match;
+//global, q1=64.29,q2=59.325;
+//vary,   name=kqtf.b1, step=1.E-6;
+//vary,   name=kqtd.b1, step=1.E-6;
+//lmdif,  calls=200, tolerance=1.E-10;
+//endmatch;
+
+// keep sextupoles
+//ksf0=ksf; ksd0=ksd;
+
+
+call, file="collisionConfiguration";
+
+//on_oct := (590/550)*(7/6.5);
+
+//use,period=lhcb1;
+//select,flag=twiss,clear;
+//select,flag=twiss,column=name,s,x,y,betx,bety;
+//twiss,file="testb1.twiss";
+//stop;
+
+//QX0 = 64.31;
+//QY0 = 59.32;
+//call, file = "coupling.mad";
+
+seqedit,sequence=lhcb1;
+flatten;
+endedit;
+
+seqedit,sequence=lhcb1;
+cycle,start=ip3;
+endedit;
+
+seqedit,sequence=lhcb2;
+flatten;
+endedit;
+
+seqedit,sequence=lhcb2;
+cycle,start=ip3;
+endedit;
+
+
+
+
+use,sequence=lhcb1;
+select, flag=twiss, clear;
+select, flag=twiss, column=name,s,betx,bety,alfx,alfy,x,px,y,py;
+twiss, sequence=lhcb1,file=tw.b1;
+plot,title="IP1, 0.55, beam 1",
+range=s.DS.L1.B1/e.DS.R1.B1,
+noline,
+vmin=-0.012,vmax=0.012,
+haxis=s,vaxis=x,y;
+plot,title="IP5, 0.55, beam 1",
+range=s.DS.L5.B1/e.DS.R5.B1,
+noline,
+vmin=-0.012,vmax=0.012,
+haxis=s,vaxis=x,y;
+
+use,sequence=lhcb2;
+select, flag=twiss, clear;
+select, flag=twiss, column=name,s,betx,bety,alfx,alfy,x,px,y,py;
+twiss, sequence=lhcb2,file=tw.b2;
+plot,title="IP1, 0.55, beam 2",
+range=s.DS.L1.B2/e.DS.R1.B2,
+noline,
+vmin=-0.012,vmax=0.012,
+haxis=s,vaxis=x,y;
+plot,title="IP5, 0.55, beam 2",
+range=s.DS.L5.B2/e.DS.R5.B2,
+noline,
+vmin=-0.012,vmax=0.012,
+haxis=s,vaxis=x,y;
+
+
+select, flag=twiss, clear;
+select, flag=twiss, pattern="IP\.*",column=name,s,betx,bety,alfx,alfy,x,px,y,py;
+twiss, sequence=lhcb1,file=twiss.b1;
+select, flag=twiss, clear;
+select, flag=twiss, pattern="IP\.*",column=name,s,betx,bety,alfx,alfy,x,px,y,py;
+twiss, sequence=lhcb2,file=twiss.b2;
+
+
+bbmarker: marker;  /* for subsequent remove */
+
+
+//+++++++++++++++++++++++++ Step 3 +++++++++++++++++++++++
+// 	define the beam-beam elements
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//
+//===========================================================
+// read macro definitions
+option,-echo;
+call,file="bb.macros";
+option,echo;
+
+call,file="collisionPath";
+//call,file="coll.sched";
+
+collOffset_IP1 = y.ip1 / py.ip1;
+value,collOffset_IP1;
+collOffset_IP5 = x.ip5 / px.ip5;
+value,collOffset_IP5;
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//Change HO_charge to take into account offset in the Xing plane at the IP ?
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//   define markers and savebetas
+assign,echo=temp.bb.install;
+//--- ip1
+if (on_ho1 <> 0)
+{
+  exec, mkho(1);
+  exec, sbhomk(1);
+}
+if (on_lr1l <> 0 || on_lr1r <> 0)
+{
+  n=1; ! counter
+  while (n < npara_1)
+  {
+   exec, mkl(1,$n);
+   exec, sbl(1,$n);
+   n=n+1;
+  }
+}
+if (on_lr1r <> 0 || on_lr1l <> 0)
+{
+  n=1; ! counter
+  while (n < npara_1)
+  {
+   exec, mkr(1,$n);
+   exec, sbr(1,$n);
+   n=n+1;
+  }
+}
+//--- ip5
+if (on_ho5 <> 0)
+{
+  exec, mkho(5);
+  exec, sbhomk(5);
+}
+if (on_lr5l <> 0 || on_lr5r <> 0)
+{
+  n=1; ! counter
+  while (n < npara_5)
+  {
+   exec, mkl(5,$n);
+   exec, sbl(5,$n);
+   n=n+1;
+  }
+}
+if (on_lr5r <> 0 || on_lr5l <> 0)
+{
+  n=1; ! counter
+  while (n < npara_5)
+  {
+   exec, mkr(5,$n);
+   exec, sbr(5,$n);
+   n=n+1;
+  }
+}
+//--- ip2
+if (on_ho2 <> 0)
+{
+  exec, mkho(2);
+  exec, sbhomk(2);
+}
+if (on_lr2l <> 0 || on_lr2r <> 0)
+{
+  n=1; ! counter
+  while (n < npara_2)
+  {
+   exec, mkl(2,$n);
+   exec, sbl(2,$n);
+   n=n+1;
+  }
+}
+if (on_lr2r <> 0 || on_lr2l <> 0)
+{
+  n=1; ! counter
+  while (n < npara_2)
+  {
+   exec, mkr(2,$n);
+   exec, sbr(2,$n);
+   n=n+1;
+  }
+}
+//--- ip8
+if (on_ho8 <> 0)
+{
+  exec, mkho(8);
+  exec, sbhomk(8);
+}
+if (on_lr8l <> 0 || on_lr8r <> 0)
+{
+  n=1; ! counter
+  while (n < npara_8)
+  {
+   exec, mkl(8,$n);
+   exec, sbl(8,$n);
+   n=n+1;
+  }
+}
+if (on_lr8r <> 0 || on_lr8l <> 0)
+{
+  n=1; ! counter
+  while (n < npara_8)
+  {
+   exec, mkr(8,$n);
+   exec, sbr(8,$n);
+   n=n+1;
+  }
+}
+assign,echo=terminal;
+call,file=temp.bb.install;
+system, "cp temp.bb.install bbel";
+system, "rm temp.bb.install";
+
+//
+
+//===========================================================
+//   install bb markers in lhcb1 and lhcb2
+assign,echo=temp.bb.install;
+//--- ip1
+if (on_ho1 <> 0)
+{
+exec, inho(mk,1);
+}
+if (on_lr1l <> 0 || on_lr1r <> 0)
+{
+  n=1; ! counter
+  while (n < npara_1)
+  {
+   exec, inl(mk,1,$n);
+   n=n+1;
+  }
+}
+if (on_lr1r <> 0 || on_lr1l <> 0)
+{
+  n=1; ! counter
+  while (n < npara_1)
+  {
+   exec, inr(mk,1,$n);
+   n=n+1;
+  }
+}
+//--- ip5
+if (on_ho5 <> 0)
+{
+exec, inho(mk,5);
+}
+if (on_lr5l <> 0 || on_lr5r <> 0)
+{
+  n=1; ! counter
+  while (n < npara_5)
+  {
+   exec, inl(mk,5,$n);
+   n=n+1;
+  }
+}
+if (on_lr5r <> 0 || on_lr5l <> 0)
+{
+  n=1; ! counter
+  while (n < npara_5)
+  {
+   exec, inr(mk,5,$n);
+   n=n+1;
+  }
+}
+//--- ip2
+if (on_ho2 <> 0)
+{
+exec, inho(mk,2);
+}
+if (on_lr2l <> 0 || on_lr2r <> 0)
+{
+  n=1; ! counter
+  while (n < npara_2)
+  {
+   exec, inl(mk,2,$n);
+   n=n+1;
+  }
+}
+if (on_lr2r <> 0 || on_lr2l <> 0)
+{
+  n=1; ! counter
+  while (n < npara_2)
+  {
+   exec, inr(mk,2,$n);
+   n=n+1;
+  }
+}
+//--- ip8
+if (on_ho8 <> 0)
+{
+exec, inho(mk,8);
+}
+if (on_lr8l <> 0 || on_lr8r <> 0)
+{
+  n=1; ! counter
+  while (n < npara_8)
+  {
+   exec, inl(mk,8,$n);
+   n=n+1;
+  }
+}
+if (on_lr8r <> 0 || on_lr8l <> 0)
+{
+  n=1; ! counter
+  while (n < npara_8)
+  {
+   exec, inr(mk,8,$n);
+   n=n+1;
+  }
+}
+assign,echo=terminal;
+seqedit,sequence=lhcb1;
+call,file=temp.bb.install;
+endedit;
+seqedit,sequence=lhcb2;
+call,file=temp.bb.install;
+endedit;
+system, "cp temp.bb.install bb.mar";
+system, "rm temp.bb.install";
+
+seqedit,sequence=lhcb2;
+//reflect;
+endedit;
+//
+
+//--- Now the beam-beam element installation is complete
+
+//test twiss----------------------------------------------
+//on_ho5  := 0;
+//on_lr5l := 0;
+//on_lr5r := 0;
+//seqedit,sequence=lhcb1;
+//cycle,start=ip1;
+//endedit;
+
+//seqedit,sequence=lhcb2;
+//cycle,start=ip1;
+//endedit;
+
+
+//use,period=lhcb2;
+//select,flag=twiss,clear;
+//select,flag=twiss,column=name,s,x,y,mux,muy,betx,bety;
+//twiss,file='b2.twiss';
+//plot,haxis=s,vaxis=x,y,colour=100,noline;
+
+use,period=lhcb1;
+select,flag=twiss,clear;
+select,flag=twiss,column=name,s,x,y,betx,bety;
+twiss,file='b1.twiss';
+//plot,haxis=s,vaxis=x,y,colour=100,noline;
+
+//stop;
+//test twiss----------------------------------------------
+//QX0 = table(summ,q1);
+//QY0 = table(summ,q2);
+//value,QX0,QY0;
+//call,file="coupling.mad";
+
+//seqedit,sequence=lhcb2;
+//cycle,start=ip1;
+//endedit;
+//
+make footprint
+//
+
+seqedit,sequence=lhcb1;
+flatten;
+cycle,start=IP3;
+endedit;
+
+use,sequence=lhcb1;
+option,trace;
+small=0.5;
+big=sqrt(1.-small^2);
+track;
+xs=small; ys=small;
+value,xs,ys;
+start,fx=xs,fy=ys;  // zero amplitude
+nsigmax=6;
+n=1; // sigma multiplier
+m=0; // angle multiplier
+while (n <= nsigmax)
+{
+  angle = 15*m*pi/180;
+  if (m == 0) {xs=n*big; ys=n*small;}
+  elseif (m == 6) {xs=n*small; ys=n*big;}
+  else
+  {
+    xs=n*cos(angle);
+    ys=n*sin(angle);
+  }
+  value,xs,ys;
+  start,fx=xs,fy=ys;
+  m=m+1;
+  if (m == 7) { m=0; n=n+1;}
+};
+dynap,fastune,turns=1024;
+endtrack;
+write,table=dynap,file;
+write,table=dynaptune,file;
+system,"./foot < dynaptune > footprint";
+
+
+//
+//Provide Sector maps for TRAIN
+//
+//===========================================================
+//--- get beta functions at bb in all four IPs
+use,period=lhcb2;
+//select,flag=twiss,class=bbmarker,column=name,s,x,y;
+twiss, sequence=lhcb2; //,file;
+//--- separation for halo collisions at IP2
+//on_sep2 = 2.118 * sqrt(epsx * r2ip2->betx) / 0.0007999979093;
+value,on_sep2;
+//===========================================================
+
+
+
+save,sequence=lhcb1,file=temp.1;
+save,sequence=lhcb2,file=temp.2;
+//save,sequence=lhcb1,lhcb2,file=temp.temp;
+select,flag=sectormap,range=#e;
+select,flag=sectormap,class=marker,pattern=^mkip.$;
+select,flag=sectormap,class=marker,pattern=^mkip.$;
+select,flag=sectormap,class=marker,pattern=^mkip.p.*;
+select,flag=twiss,clear;
+select,flag=twiss,class=marker,pattern=^ip.*,
+       column=name,s,x,betx,alfx,dx,y,bety,alfy,dy;
+select,flag=twiss,class=marker,pattern=^mkip.$,
+       column=name,s,x,betx,alfx,dx,y,bety,alfy,dy;
+select,flag=twiss,class=marker,pattern=^mkip.$,
+       column=name,s,x,betx,alfx,dx,y,bety,alfy,dy;
+select,flag=twiss,class=marker,pattern=^mkip.p.*,
+       column=name,s,x,betx,alfx,dx,y,bety,alfy,dy;
+use,period=lhcb1;
+twiss,sequence=lhcb1,sectormap,sectorfile=train.mapf,file=train.optf;
+use,period=lhcb2;
+twiss,sequence=lhcb2,sectormap,sectorfile=train.mapb,file=train.optb;
+
+
+stop;
+

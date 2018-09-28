@@ -1,0 +1,408 @@
+
+seqedit,sequence=lhcb1;
+flatten;
+endedit;
+
+seqedit,sequence=lhcb1;
+cycle,start=ip3;
+endedit;
+
+seqedit,sequence=lhcb2;
+flatten;
+endedit;
+
+seqedit,sequence=lhcb2;
+cycle,start=ip3;
+endedit;
+
+
+
+
+use,sequence=lhcb1;
+select, flag=twiss, clear;
+select, flag=twiss, column=name,s,betx,bety,alfx,alfy,x,px,y,py;
+twiss, sequence=lhcb1,file=tw.b1;
+plot,title="IP1, 0.55, beam 1",
+range=s.DS.L1.B1/e.DS.R1.B1,
+noline,
+vmin=-0.012,vmax=0.012,
+haxis=s,vaxis=x,y;
+plot,title="IP5, 0.55, beam 1",
+range=s.DS.L5.B1/e.DS.R5.B1,
+noline,
+vmin=-0.012,vmax=0.012,
+haxis=s,vaxis=x,y;
+
+use,sequence=lhcb2;
+select, flag=twiss, clear;
+select, flag=twiss, column=name,s,betx,bety,alfx,alfy,x,px,y,py;
+twiss, sequence=lhcb2,file=tw.b2;
+plot,title="IP1, 0.55, beam 2",
+range=s.DS.L1.B2/e.DS.R1.B2,
+noline,
+vmin=-0.012,vmax=0.012,
+haxis=s,vaxis=x,y;
+plot,title="IP5, 0.55, beam 2",
+range=s.DS.L5.B2/e.DS.R5.B2,
+noline,
+vmin=-0.012,vmax=0.012,
+haxis=s,vaxis=x,y;
+
+use,period=lhcb1;
+twiss,sequence=lhcb1,file=sext_oct.optf;
+use,period=lhcb2;
+twiss,sequence=lhcb2,file=sext_oct.optb;
+
+
+select, flag=twiss, clear;
+select, flag=twiss, pattern="IP\.*",column=name,s,betx,bety,alfx,alfy,x,px,y,py;
+twiss, sequence=lhcb1,file=twiss.b1;
+select, flag=twiss, clear;
+select, flag=twiss, pattern="IP\.*",column=name,s,betx,bety,alfx,alfy,x,px,y,py;
+twiss, sequence=lhcb2,file=twiss.b2;
+
+select,flag=twiss,clear;
+select,flag=twiss,class=marker,pattern="MO.*",column=name,s,x,betx,de,y,bety,dy;
+select,flag=twiss,class=marker,pattern="MCS*",column=name,s,x,betx,de,y,bety,dy;
+select,flag=twiss,class=marker,pattern="MS*",column=name,s,x,betx,de,y,bety,dy;
+select,flag=twiss,class=marker,pattern="MSS*",column=name,s,x,betx,de,y,bety,dy;
+
+
+
+bbmarker: marker;  /* for subsequent remove */
+
+
+//+++++++++++++++++++++++++ Step 3 +++++++++++++++++++++++
+// 	define the beam-beam elements
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//
+//===========================================================
+// read macro definitions
+option,-echo;
+call,file="bb.macros";
+option,echo;
+
+call,file="collisionPath";
+call,file="on_ext.hllhc";
+//call,file="coll.sched";
+
+collOffset_IP1 = y.ip1 / py.ip1;
+value,collOffset_IP1;
+collOffset_IP5 = x.ip5 / px.ip5;
+value,collOffset_IP5;
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//Change HO_charge to take into account offset in the Xing plane at the IP ?
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//   define markers and savebetas
+assign,echo=temp.bb.install;
+//--- ip1
+if (on_ho1 <> 0)
+{
+  exec, mkho(1);
+  exec, sbhomk(1);
+}
+if (on_lr1l <> 0 || on_lr1r <> 0)
+{
+  n=1; ! counter
+  while (n < npara_1)
+  {
+   exec, mkl(1,$n);
+   exec, sbl(1,$n);
+   n=n+1;
+  }
+}
+if (on_lr1r <> 0 || on_lr1l <> 0)
+{
+  n=1; ! counter
+  while (n < npara_1)
+  {
+   exec, mkr(1,$n);
+   exec, sbr(1,$n);
+   n=n+1;
+  }
+}
+//--- ip5
+if (on_ho5 <> 0)
+{
+  exec, mkho(5);
+  exec, sbhomk(5);
+}
+if (on_lr5l <> 0 || on_lr5r <> 0)
+{
+  n=1; ! counter
+  while (n < npara_5)
+  {
+   exec, mkl(5,$n);
+   exec, sbl(5,$n);
+   n=n+1;
+  }
+}
+if (on_lr5r <> 0 || on_lr5l <> 0)
+{
+  n=1; ! counter
+  while (n < npara_5)
+  {
+   exec, mkr(5,$n);
+   exec, sbr(5,$n);
+   n=n+1;
+  }
+}
+//--- ip2
+if (on_ho2 <> 0)
+{
+  exec, mkho(2);
+  exec, sbhomk(2);
+}
+if (on_lr2l <> 0 || on_lr2r <> 0)
+{
+  n=1; ! counter
+  while (n < npara_2)
+  {
+   exec, mkl(2,$n);
+   exec, sbl(2,$n);
+   n=n+1;
+  }
+}
+if (on_lr2r <> 0 || on_lr2l <> 0)
+{
+  n=1; ! counter
+  while (n < npara_2)
+  {
+   exec, mkr(2,$n);
+   exec, sbr(2,$n);
+   n=n+1;
+  }
+}
+//--- ip8
+if (on_ho8 <> 0)
+{
+  exec, mkho(8);
+  exec, sbhomk(8);
+}
+if (on_lr8l <> 0 || on_lr8r <> 0)
+{
+  n=1; ! counter
+  while (n < npara_8)
+  {
+   exec, mkl(8,$n);
+   exec, sbl(8,$n);
+   n=n+1;
+  }
+}
+if (on_lr8r <> 0 || on_lr8l <> 0)
+{
+  n=1; ! counter
+  while (n < npara_8)
+  {
+   exec, mkr(8,$n);
+   exec, sbr(8,$n);
+   n=n+1;
+  }
+}
+assign,echo=terminal;
+call,file=temp.bb.install;
+system, "cp temp.bb.install bbel";
+system, "rm temp.bb.install";
+
+//
+
+//===========================================================
+//   install bb markers in lhcb1 and lhcb2
+assign,echo=temp.bb.install;
+//--- ip1
+if (on_ho1 <> 0)
+{
+exec, inho(mk,1);
+}
+if (on_lr1l <> 0 || on_lr1r <> 0)
+{
+  n=1; ! counter
+  while (n < npara_1)
+  {
+   exec, inl(mk,1,$n);
+   n=n+1;
+  }
+}
+if (on_lr1r <> 0 || on_lr1l <> 0)
+{
+  n=1; ! counter
+  while (n < npara_1)
+  {
+   exec, inr(mk,1,$n);
+   n=n+1;
+  }
+}
+//--- ip5
+if (on_ho5 <> 0)
+{
+exec, inho(mk,5);
+}
+if (on_lr5l <> 0 || on_lr5r <> 0)
+{
+  n=1; ! counter
+  while (n < npara_5)
+  {
+   exec, inl(mk,5,$n);
+   n=n+1;
+  }
+}
+if (on_lr5r <> 0 || on_lr5l <> 0)
+{
+  n=1; ! counter
+  while (n < npara_5)
+  {
+   exec, inr(mk,5,$n);
+   n=n+1;
+  }
+}
+//--- ip2
+if (on_ho2 <> 0)
+{
+exec, inho(mk,2);
+}
+if (on_lr2l <> 0 || on_lr2r <> 0)
+{
+  n=1; ! counter
+  while (n < npara_2)
+  {
+   exec, inl(mk,2,$n);
+   n=n+1;
+  }
+}
+if (on_lr2r <> 0 || on_lr2l <> 0)
+{
+  n=1; ! counter
+  while (n < npara_2)
+  {
+   exec, inr(mk,2,$n);
+   n=n+1;
+  }
+}
+//--- ip8
+if (on_ho8 <> 0)
+{
+exec, inho(mk,8);
+}
+if (on_lr8l <> 0 || on_lr8r <> 0)
+{
+  n=1; ! counter
+  while (n < npara_8)
+  {
+   exec, inl(mk,8,$n);
+   n=n+1;
+  }
+}
+if (on_lr8r <> 0 || on_lr8l <> 0)
+{
+  n=1; ! counter
+  while (n < npara_8)
+  {
+   exec, inr(mk,8,$n);
+   n=n+1;
+  }
+}
+assign,echo=terminal;
+seqedit,sequence=lhcb1;
+call,file=temp.bb.install;
+endedit;
+seqedit,sequence=lhcb2;
+call,file=temp.bb.install;
+endedit;
+system, "cp temp.bb.install bb.mar";
+system, "rm temp.bb.install";
+
+seqedit,sequence=lhcb2;
+reflect;
+flatten;
+endedit;
+
+
+//
+//Provide Sector maps for TRAIN
+//
+//===========================================================
+//--- get beta functions at bb in all four IPs
+use,period=lhcb2;
+//select,flag=twiss,class=bbmarker,column=name,s,x,y;
+twiss, sequence=lhcb2; //,file;
+//--- separation for halo collisions at IP2
+//on_sep2 = 2.118 * sqrt(epsx * r2ip2->betx) / 0.0007999979093;
+value,on_sep2;
+//===========================================================
+
+
+
+//save,sequence=lhcb1,file=temp.1;
+//save,sequence=lhcb2,file=temp.2;
+//save,sequence=lhcb1,lhcb2,file=temp.temp;
+select,flag=sectormap,range=#e;
+select,flag=sectormap,class=marker,pattern=^mkip.$;
+select,flag=sectormap,class=marker,pattern=^mkip.p.*;
+
+//            Extra elements             //
+if (on_ext <> 0){
+if (on_ho1 <> 0)
+{
+select,flag=sectormap,pattern="MQXFA\.A..1$";
+select,flag=sectormap,pattern="acfca\.c.1\...";
+select,flag=sectormap,pattern="vacfca\.c.1\...";
+select,flag=sectormap,pattern="acfcah\.a.1\...";
+}
+if (on_ho2 <> 0)
+{
+select,flag=sectormap,pattern="MQXA\...2$";
+select,flag=sectormap,pattern="MQXFA\.A..2$";
+select,flag=sectormap,pattern="MQXB\....2$";
+select,flag=sectormap,pattern="acfca";
+select,flag=sectormap,pattern="acfca.dl";
+select,flag=sectormap,pattern="vacfca.dl";
+select,flag=sectormap,pattern="acfcah.al";
+}
+if (on_ho5 <> 0)
+{
+select,flag=sectormap,pattern="MQXA\...5$";
+select,flag=sectormap,pattern="MQXFA\.A..5$";
+select,flag=sectormap,pattern="acfca\.c.5\...";
+select,flag=sectormap,pattern="vacfca\.c.5\...";
+select,flag=sectormap,pattern="acfcah\.a.5\...";
+}
+if (on_ho8 <> 0)
+{
+select,flag=sectormap,pattern="MQXA\...8$";
+select,flag=sectormap,pattern="MQXFA\.A..8$";
+select,flag=sectormap,pattern="MQXB\....8$";
+select,flag=sectormap,pattern="acfca";
+select,flag=sectormap,pattern="acfca.dl";
+select,flag=sectormap,pattern="vacfca.dl";
+select,flag=sectormap,pattern="acfcah.al";
+}
+}
+select,flag=twiss,clear;
+select,flag=twiss,class=marker,pattern=^ip.*,
+       column=name,s,x,betx,alfx,dx,y,bety,alfy,dy;
+select,flag=twiss,class=marker,pattern=^mkip.$,
+       column=name,s,x,betx,alfx,dx,y,bety,alfy,dy;
+select,flag=twiss,class=marker,pattern=^mkip.p.*,
+       column=name,s,x,betx,alfx,dx,y,bety,alfy,dy;
+
+select,flag=survey,clear;
+select,flag=survey,class=marker,pattern=^ip.*,
+       column=name,x,y,z;
+select,flag=survey,class=marker,pattern=^mkip.$,
+       column=name,x,y,z;
+select,flag=survey,class=marker,pattern=^mkip.p.*,
+       column=name,x,y,z;
+
+
+set, format="22.18e";
+
+use,period=lhcb1;
+twiss,sequence=lhcb1,sectormap,sectorfile=train.mapf,file=train.optf;
+survey,sequence=lhcb1,file=train.surf;
+use,period=lhcb2;
+twiss,sequence=lhcb2,sectormap,sectorfile=train.mapb,file=train.optb;
+survey,sequence=lhcb2,file=train.surb;
+
+
+

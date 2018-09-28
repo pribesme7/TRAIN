@@ -1,0 +1,133 @@
+option, warn,info;
+//system,"ln -fns /afs/cern.ch/eng/lhc/optics/runIII lhc";
+system,"ln -fns /afs/cern.ch/eng/lhc/optics/HLLHCV1.3  slhc";
+option, -echo, -warn,info;
+//call,file="slhc/toolkit/macro.madx";
+call,file= "macro.madx";
+call,file="slhc/aperture/const_for_aperture.madx";
+call,file="lhc_skewquad.seq";
+
+
+
+
+exec,mk_beam(7000);
+call,file="slhc/hllhc_sequence.madx";
+
+
+
+
+exec,myslice;
+
+call,file="slhc/squeeze2/opt_squeeze_640_3000.madx";
+exec,check_ip(b1); exec,check_ip(b2);
+
+
+on_oct=1;
+call,file="octupole.str";
+
+value, kqs.a23b1;
+
+show, MQS.23R1.B1;
+
+
+!!!!!!!!!!! Remove afterwards! Evaluate the change of coupling!!!!!!!!!!
+llee=0.32;
+
+klee.4L1 := 0.0003;
+
+leeqs.4L1: multipole,lrad:=llee, ksl:={ 0.000000000000000,( 0 - klee.4L1) * ( llee ) };
+
+seqedit, sequence=lhcb2; flatten;
+
+install, element=leeqs.4L1, at=0.001, from=MQM.9L1.B2;
+
+endedit;
+
+show, leeqs.4L1;
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+//exec,check_ip(b1); exec,check_ip(b2);
+
+//exec, CORCHROMA_ALL(3,b1)
+//exec, CORCHROMA_ALL(3,b2)
+
+//+++++++++++++++++++++++++ Step 1 +++++++++++++++++++++++
+// 	define beam constants
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+call, file = "beamDefinition_collision.hllhc";
+
+//--- split5, 4d
+long_a= 0.53 * sigz/2;
+long_b= 1.40 * sigz/2;
+value,long_a,long_b;
+
+ho_charge = 1.0;
+
+//+++++++++++++++++++++++++ Step 2 +++++++++++++++++++++++
+// 	slice, flatten sequence, and cycle start to ip3
+//	load collision configuration
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+qx01 = 62.31;
+qy01 = 60.32;
+qprime1 = 15;
+
+qx02 = 62.31;
+qy02 = 60.32;
+qprime2 = 15;
+//call,file="matching_skquad.madx";
+call,file="matching.madx";
+
+use,sequence=lhcb1;
+option,-warn,-echo,-info;
+
+option,warn,echo,info;
+ abas :=  2.0*clight/(7e12)*on_atlas ;
+ abcs :=  4.0*clight/(7e12)*on_cms ;
+
+ 
+//call, file="collisionConfiguration.2015";
+//call, file="collisionCOnfiguration.2017.temp";
+
+!!!!!I am using the configuration given by Riccarde De Maria!!!!!!!!!!\
+
+!half crossing angles
+on_x1                :=  0 ;
+on_x2                :=  0 ;
+on_x5                :=  0 ;
+on_x8                :=  0 ;
+
+! phi
+phi_IR1              :=   0 ;
+phi_IR2		     :=   0 ;
+phi_IR5              :=   0 ;
+phi_IR8 	     :=   0 ;
+
+
+call, file="on_sep.collision";
+
+
+
+on_sol_atlas        :=  0 ;
+on_sol_cms          :=  0 ;
+on_sol_alice        :=  0 ;
+
+on_crab1            :=  0;
+on_crab5            :=  0;
+
+on_lhcb             :=  7000/nrj;
+on_alice            :=  7000/nrj;
+
+on_a2                =  0 ;
+on_a8                =  0 ;
+
+on_disp=0;
+
+
+/// AG: extracted common beam beam part to separate file
+call, file="commonBeamBeamPart.mad";
+show, MQS.23R1.B1;
+stop;
+

@@ -1,0 +1,8 @@
+INJECTION SCHEME : 25ns_2748b_2736_2258_2374_288bpi_12inj
+
+idx,inj Nbr,	Ring,RF Bucket,Bu Spac (ns),bu per PS batch,SPS Batch spac,PSbatch nbr
+1,	1,	ring_1,	1,		25,		1,		0,	1
+2,	1,	ring_2,	1,		25,		1,		0,	1
+Bu Spac : space in ns between bunches in the same PS train
+SPS Batch Spac : space in ns between 2 first bunches of consecutive PS trains in the SPS
+

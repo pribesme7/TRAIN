@@ -1,0 +1,114 @@
+option, warn,info;
+system,"ln -fns /afs/cern.ch/eng/lhc/optics/runIII lhc";
+system,"ln -fns /afs/cern.ch/eng/lhc/optics/HLLHCV1.3  slhc";
+option, -echo, -warn,info;
+//call,file="slhc/toolkit/macro.madx";
+call,file= "macro.madx";
+call,file="slhc/aperture/const_for_aperture.madx";
+call,file="lhc/lhc.seq";
+
+
+exec,mk_beam(7000);
+call,file="slhc/hllhc_sequence.madx";
+
+exec,myslice;
+
+call,file="slhc/squeeze2/opt_410_410_410_410.madx";
+exec,check_ip(b1); exec,check_ip(b2);
+
+
+
+//exec,check_ip(b1); exec,check_ip(b2);
+
+//exec, CORCHROMA_ALL(3,b1)
+//exec, CORCHROMA_ALL(3,b2)
+
+//+++++++++++++++++++++++++ Step 1 +++++++++++++++++++++++
+// 	define beam constants
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+call, file = "beamDefinition_collision_ultimate.hllhc";
+
+//--- split5, 4d
+long_a= 0.53 * sigz/2;
+long_b= 1.40 * sigz/2;
+value,long_a,long_b;
+
+ho_charge = 1.0;
+
+on_oct=1;
+//call,file="octupole.str";
+
+//+++++++++++++++++++++++++ Step 2 +++++++++++++++++++++++
+// 	slice, flatten sequence, and cycle start to ip3
+//	load collision configuration
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+qx01 = 62.31;
+qy01 = 60.32;
+qprime1 = 15;
+
+qx02 = 62.31;
+qy02 = 60.32;
+qprime2 = 15;
+
+call,file="matching.madx";
+call,file="slhc/toolkit/enable_crabcavities.madx";
+use,sequence=lhcb1;
+option,-warn,-echo,-info;
+
+
+
+option,warn,echo,info;
+ abas :=  2.0*clight/(7e12)*on_atlas ;
+ abcs :=  4.0*clight/(7e12)*on_cms ;
+
+ 
+//call, file="collisionConfiguration.2015";
+//call, file="collisionCOnfiguration.2017.temp";
+
+!!!!!I am using the configuration given by Riccarde De Maria!!!!!!!!!!\
+
+!half crossing angles
+on_x1                :=  250 ;
+on_x2                :=  -170 ;
+on_x5                :=  250 ;
+on_x8                :=  -250 ;
+
+! phi
+phi_IR1              :=   0 ;
+phi_IR2		     :=   90 ;
+phi_IR5              :=   90 ;
+phi_IR8 	     :=   0 ;
+
+
+
+!parallel separation
+on_sep1              :=  0.0 ;
+on_sep2              :=  0.138 ;
+on_sep5              :=  -0.0 ;
+on_sep8              :=  -0.043 ;
+
+
+on_sol_atlas        :=  0 ;
+on_sol_cms          :=  0 ;
+on_sol_alice        :=  0 ;
+
+on_crab1            :=  0;
+on_crab5            :=  0;
+
+on_lhcb             :=  7000/nrj;
+on_alice            :=  7000/nrj;
+
+on_a2                =  0 ;
+on_a8                =  0 ;
+
+
+
+on_disp=0;
+
+/// AG: extracted common beam beam part to separate file
+call, file="commonBeamBeamPart.mad";
+
+stop;
+

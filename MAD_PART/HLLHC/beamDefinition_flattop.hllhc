@@ -1,0 +1,20 @@
+call,file= "npar.hllhc";
+ nrj   =  7000;
+ bg   =  nrj/pmass;
+ enx   = 2.3e-06;
+ eny = 2.1e-06;
+ epsx = enx/bg;
+ epsy = eny/bg;
+
+Beam, particle = proton, sequence=lhcb1, energy = nrj,
+          sigt=      0.076     , 
+          bv = +1, NPART=2.3E11, sige=      1.1e-4, 
+          ex=epsx,   ey=epsy;
+
+Beam, particle = proton, sequence=lhcb2, energy = nrj,
+          sigt=      0.076     , 
+          bv = -1, NPART=2.3E11, sige=      1.1e-4, 
+          ex=epsx,   ey=epsy;
+
+beamx = beam%lhcb1->ex;   beamy = beam%lhcb1->ey;
+sigz  = beam%lhcb1->sigt; sige = beam%lhcb1->sige;

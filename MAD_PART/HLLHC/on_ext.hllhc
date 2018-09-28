@@ -1,0 +1,6 @@
+!
+!===========================================================
+!   selects if extra elements must be displayed
+
+ on_ext  := +0; 
+ 

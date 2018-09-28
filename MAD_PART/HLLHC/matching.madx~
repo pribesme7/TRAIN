@@ -1,0 +1,53 @@
+
+
+match,sequence=lhcb1;
+global, q1=qx01, q2=qy01;
+vary,   name=kqtf.b1, step=1.0E-7 ;
+vary,   name=kqtd.b1, step=1.0E-7 ;
+lmdif,  calls=100, tolerance=1.0E-21;
+endmatch;
+
+match,chrom;
+global, dq1=qprime1, dq2=qprime1;
+vary,   name=ksf.b1;
+vary,   name=ksd.b1;
+lmdif,  calls=100, tolerance=1.0E-21;
+endmatch;
+
+match,chrom;
+global, dq1=qprime1, dq2=qprime1;
+global, q1=qx01, q2=qy01;
+vary,   name=ksf.b1;
+vary,   name=ksd.b1;
+vary,   name=kqtf.b1, step=1.0E-7 ;
+vary,   name=kqtd.b1, step=1.0E-7 ;
+lmdif,  calls=500, tolerance=1.0E-21;
+endmatch;
+
+qx02 = 62.31;
+qy02 = 60.32;
+qprime2 = 15;
+
+match,sequence=lhcb2;
+global, q1=qx02, q2=qy02;
+vary,   name=kqtf.b2, step=1.0E-7 ;
+vary,   name=kqtd.b2, step=1.0E-7 ;
+lmdif,  calls=100, tolerance=1.0E-21;
+endmatch;
+
+match,chrom;
+global, dq1=qprime2, dq2=qprime2;
+vary,   name=ksf.b2;
+vary,   name=ksd.b2;
+lmdif,  calls=100, tolerance=1.0E-21;
+endmatch;
+
+match,chrom;
+global, dq1=qprime2, dq2=qprime2;
+global, q1=qx02, q2=qy02;
+vary,   name=ksf.b2;
+vary,   name=ksd.b2;
+vary,   name=kqtf.b2, step=1.0E-7 ;
+vary,   name=kqtd.b2, step=1.0E-7 ;
+lmdif,  calls=500, tolerance=1.0E-21;
+endmatch;

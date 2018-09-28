@@ -1,0 +1,156 @@
+from tempfile import mkstemp
+from shutil import move
+from os import fdopen, remove
+import  numpy as np
+import subprocess
+import pickle as pk
+
+def replace(file_path, pattern, subst):
+    #Create temp file
+    fh, abs_path = mkstemp()
+    with fdopen(fh,'w') as new_file:
+        with open(file_path) as old_file:
+            for line in old_file:
+                new_file.write(line.replace(pattern, subst))
+    #Remove original file
+    remove(file_path)
+    #Move new file
+    move(abs_path, file_path)
+
+
+def initialize(filename,start,stop):
+
+    subst1 = 'on_sep1              :=  {st} ;'.format(st=stop )
+    pattern1 = 'on_sep1              :=  {st} ;'.format(st=start)
+    replace(filename, subst1, pattern1)
+
+    subst5 = 'on_sep5              :=  {st} ;'.format(st=stop )
+    pattern5 = 'on_sep5              :=  {st} ;'.format(st=start)
+    replace(filename, subst5, pattern5)
+
+    f = open(filename, 'r')
+    content = f.read()
+    print(content)
+    f.close()
+
+
+def analyse_onsep(outfile,onseprange,start,step,filename,prc,stg):
+
+    for onsep in onseprange:
+   	    
+	    subst = 'on_sep5              :=  {st} ;'.format(st = onsep - step)
+            pattern = 'on_sep5              :=  {st} ;'.format(st = onsep)
+
+            replace(filename,subst,pattern)
+            
+            f = open(filename,'r')
+	    content = f.read()
+	    print('CHECKING CONTENT')
+	    print(content)
+            f.close()
+
+            onsepm = int(round((onsep - start - step )/step))
+
+            analyse_dqmin(outfile,onsep,prc,stg)
+
+
+def analytic_approach():
+    trainoptf = 'train.optf'
+    trainoptb = 'train.optb'
+    ff = open(filepathf,'r')
+    fb = open(filepathb,'r')
+
+    namef,xf,betxf,yf,betyf = np.loadtxt(ff, unpack=True, skiprows=0, usecols=[0,2,3,6,7],comments=['@','*','$'])
+    nameb,xb,betxb,yb,betyb = np.loadtxt(fb, unpack=True, skiprows=0, usecols=[0,2,3,6,7],comments=['@','*','$'])
+    
+    xf0 = xf[namef.index("IP5")]
+    xb0 = xb[nameb.index("IP5")]
+    betxf0 = betxf[namef.index("IP5")]
+    betxb0 = betxb[nameb.index("IP5")]
+     
+    yf0 = yf[namef.index("IP5")]
+    yb0 = yb[nameb.index("IP5")]
+    betxf0 = betxf[namef.index("IP5")]
+    betxb0 = betxb[nameb.index("IP5")]
+    r0 = 1.53469857 * 10 ** (-18)
+    en = 2.5 *10**(-6)
+    gamma = 7460.522527611191
+    N = 2.299999999999999390e+11
+    sigmaxf = np.sqrt(en*betxf0/gamma)
+    sigmayf = np.sqrt(en*betyf0/gamma)
+    sigmaf = np.sqrt(sigmaxf**2 + sigmayf**2)
+    
+    sigmaxb = np.sqrt(en*betxb0/gamma)
+    sigmayb = np.sqrt(en*betyb0/gamma)
+    sigmab = np.sqrt(sigmaxb**2 + sigmayb**2) 
+    sigma = np.sqrt(sigmaf**2 + sigmab**2)
+    d = np.sqrt((xf0-xb0)**2+(yf0-yb0)**2)
+    alpha = abs(np.arctan((yf0-yb0)/(xf0-xb0)))
+
+    dqmin = 2*r0*N/(np.pi*en)*np.sin(alpha)*np.cos(alpha)/d**2
+
+    return dqmin
+
+def analyse_dqmin(outfile,onsep,prc,stg):
+
+    file = '25ns_zero_intensity.in'
+
+    subprocess.call(["./updateMadFiles.sh","HL_{pr}".format(pr = prc)])
+    
+    
+    dqmin_analytic = analytic_approach()
+
+    subprocess.call(["./runTrainForFillingScheme.sh","{f}".format(f = file),"noPlot"])
+
+    filepathf = "RESULTS/{f}/fort.closest_tune_app_f".format(f = file)
+
+    filepathb = "RESULTS/{f}/fort.closest_tune_app_b".format(f = file)
+     
+    ff = open(filepathf,'r')
+    fb = open(filepathb,'r')
+
+    aux, dqminf = np.loadtxt(ff, unpack=True, skiprows=0, usecols=[0, 1])
+    aux, dqminb = np.loadtxt(fb, unpack=True, skiprows=0, usecols=[0, 1])	
+    
+    outcontent = '{d} \t {dqmf} \t {dqmb} \t {dqmanl} \n'.format(d = onsep, dqmf = dqminf,dqmb = dqminb,dqmanl = dqmin_analytic)
+    outfile.write(outcontent)
+
+    
+def main():
+    init = False
+    prc = "diagonal"
+    stg = "zero"
+
+    step = 0.1
+    start = -6.0 - step
+    stop = 6.0 + step
+    n = 1
+    
+
+    filename = "MAD_PART/MDcycle/on_sep.{pr}".format(pr = prc)
+
+    if init == True:
+        initialize(filename, start, -6.0)
+	
+    else:
+	onsep = np.arange(start + step,-step,step)
+	onsep2 = np.arange(-step,stop,step)
+
+
+	onsep = list(onsep) + list(onsep2)
+	onsep = [ '%.2f' % elem for elem in onsep ]
+	onseprange = [ float(elem) for elem in onsep ]
+	
+	for i in onseprange:
+		print(int(round((i - start - step )/step)))
+
+	filename2 = 'dqminonsep.dat'
+	outfile = open(filename2,'w')
+
+        analyse_onsep(outfile,onseprange,start,step,filename,prc,stg)
+
+	outfile.close()
+	
+    
+if __name__ == "__main__":
+    main()

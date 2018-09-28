@@ -1,0 +1,146 @@
+import os, sys
+
+# if __name__ == '__main__':
+#print(sys.argv)
+#with open(name = sys.argv[1], mode="r") as fin:
+#    with open(name = sys.argv[2], mode="w+") as fout:
+#        for line in fin:
+#	    print 'line',line;	
+#	    filledBucket = line.split(' ')[2];
+#            print 'filled',filledBucket
+#            valid = ' 1.0 1.0 1.0 1.0\n';
+#            invalid = ' 0.0 0.0 0.0 0.0\n'
+#            lineOut = line.rstrip() + valid;
+#            if filledBucket=="0":
+#                lineOut=line.rstrip() + invalid; 	
+#	    print lineOut;	
+#            fout.write(lineOut);
+
+import sys,os
+
+with open(name=sys.argv[1], mode="r") as fin:
+    with open(name=sys.argv[2], mode="w+") as fout:
+        cont = 0
+        b1 = {}
+	b2 = {}
+	slotnb1 = 1
+	slotnb2 = 1
+	nslots = 3564
+	print('Name of file, cut:',sys.argv[1][0:2])
+
+        for line in fin:
+	    print(line)
+            if str(line[0]) == 'i' or str(line[0]) == 'I'or str(line[0]) == '\r' or str(line[0]) == '\n'or str(line[0]) == '\t':
+                print('Non read',line)
+            elif str(line[0]) == 'B':
+                break
+            else:
+		print(line)
+		line = line.replace(',','')
+                line = line.strip().split()
+		print('line',line)
+		
+		rfbucket = int(float(line[3]))
+		slotnbr = int((rfbucket - 1.)/10.) + 1
+		space = int(float(line[6])/25.) 
+		nbr = int(line[-1]) 
+		ring = int(line[2][-1])
+		bunch = int(line[5])
+
+		if sys.argv[1][0:2] == '25' or bunch == 12 or sys.argv[1][0:2] == 'BC':
+			train = bunch
+		else:
+			train = bunch + (int(bunch/8.)-1)*4
+
+		
+
+
+		empty = space - train
+		print('train,empty',train,empty)
+
+		#print(rfbucket,slotnbr,space,nbr,ring,bunch,empty)
+		if slotnb1 < slotnbr and ring == 1:
+			for k in range(slotnbr-slotnb1 ):
+				b1[slotnb1] = 0
+				slotnb1 = slotnb1 + 1
+
+		if slotnb2 < slotnbr and ring == 2:
+			for k in range(slotnbr-slotnb2 ):
+				b2[slotnb2] = 0
+				slotnb2 = slotnb2 + 1
+		
+		if sys.argv[1][0:2] == '25' or bunch == 12 or sys.argv[1][0:2] == 'BC':	
+			for i in range(nbr):
+				for j in range(bunch):
+					
+					if ring == 1:
+						b1[slotnb1] = 1
+						slotnb1 = slotnb1 + 1
+					else:
+						b2[slotnb2] = 1
+						slotnb2 = slotnb2 + 1
+				if empty > 0:
+					for k in range(empty):
+						if ring == 1:
+							b1[slotnb1] = 0
+							slotnb1 = slotnb1 + 1
+	
+						else:
+							b2[slotnb2] = 0
+							slotnb2 = slotnb2 + 1
+		else:
+			for k in range(nbr):
+				for i in range(int(bunch/8.)):
+					for j in range(8):
+						if ring == 1:
+							b1[slotnb1] = 1
+							slotnb1 = slotnb1 + 1
+						else:
+							b2[slotnb2] = 1
+							slotnb2 = slotnb2 + 1
+	
+					if i < int(bunch/8.-1):
+						for l in range(4):
+							if ring == 1:
+								b1[slotnb1] = 0
+								slotnb1 = slotnb1 + 1
+							else:
+								b2[slotnb2] = 0
+								slotnb2 = slotnb2 + 1
+
+					
+				if empty > 0:
+					for l in range(empty):
+						if ring == 1:
+							b1[slotnb1] = 0
+							slotnb1 = slotnb1 + 1
+	
+						else:
+							b2[slotnb2] = 0
+							slotnb2 = slotnb2 + 1	
+				print('In train',k,slotnb1)
+			
+				
+	
+
+	if slotnb1 < nslots:
+		for i in range(nslots-slotnb1 + 1):
+			b1[slotnb1] = 0
+			slotnb1 = slotnb1 + 1
+	if slotnb2 < nslots:
+		for i in range(nslots-slotnb2 + 1):
+			b2[slotnb2] = 0
+			slotnb2 = slotnb2 + 1
+
+	for i in range(len(b1.keys())):
+		output = '{st1} {st2} {st3} {st4} {st5}\n'.format(st1 = b1.keys()[i],st2 = b1.values()[i],st3 = b2.values()[i],st4 = float(b1.values()[i]), st5 = float(b2.values()[i]))	
+		print(output)
+		fout.write(output)				
+				
+			
+			
+			
+
+
+		
+	
